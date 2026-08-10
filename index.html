@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a1628">
+<meta name="description" content="Statistiche ufficiali basket in carrozzina - Serie A e Serie B">
+<link rel="manifest" href="manifest.json">
+<title>WheelBasket Italia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0a1628;
+  --navy2:#112040;
+  --blue:#1a56db;
+  --blue-light:#3b82f6;
+  --gold:#f59e0b;
+  --gold-light:#fcd34d;
+  --white:#ffffff;
+  --gray50:#f8fafc;
+  --gray100:#f1f5f9;
+  --gray200:#e2e8f0;
+  --gray400:#94a3b8;
+  --gray600:#475569;
+  --gray800:#1e293b;
+  --red:#ef4444;
+  --green:#22c55e;
+  --radius:10px;
+  --shadow:0 4px 24px rgba(0,0,0,0.18);
+}
+body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden}
+
+/* NAV */
+nav{background:var(--navy2);border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100;padding:0 1rem}
+.nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;letter-spacing:1px;color:var(--white)}
+.logo span{color:var(--gold)}
+.nav-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;color:var(--gray400);font-size:.8rem;font-weight:600;padding:.5rem .75rem;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-btn:hover{color:var(--white)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--navy2) 0%,#0d2040 100%);padding:1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.hero-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.hero h1{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;line-height:1.1}
+.hero h1 span{color:var(--gold);display:block;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:.25rem}
+.ball-icon{font-size:3rem;flex-shrink:0}
+.live-badge{background:var(--red);color:var(--white);font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;letter-spacing:1px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* MAIN */
+main{max-width:900px;margin:0 auto;padding:1rem}
+.section{display:none}
+.section.active{display:block}
+
+/* TABS CAMPIONATO */
+.camp-tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.camp-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--gray400);font-size:.8rem;font-weight:600;padding:.4rem .9rem;border-radius:20px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+.camp-btn.active{background:var(--blue);border-color:var(--blue);color:var(--white)}
+
+/* CLASSIFICA TABLE */
+.card{background:var(--navy2);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);overflow:hidden;margin-bottom:1.25rem}
+.card-header{background:rgba(255,255,255,.04);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gold)}
+.card-sub{font-size:.75rem;color:var(--gray400)}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{padding:.6rem .75rem;text-align:center;color:var(--gray400);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.08)}
+thead th:first-child{text-align:left}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.04)}
+tbody tr:last-child{border-bottom:none}
+td{padding:.6rem .75rem;text-align:center;color:var(--gray200)}
+td:first-child{text-align:left}
+.rank{color:var(--gray400);font-weight:500;width:24px;display:inline-block}
+.rank-1{color:var(--gold);font-weight:700}
+.rank-2{color:var(--gray200)}
+.rank-3{color:#cd7f32}
+.team-name{font-weight:600;color:var(--white)}
+.pts-cell{font-weight:700;color:var(--blue-light)}
+.trend{font-size:.7rem;font-weight:700;padding:.1rem .4rem;border-radius:4px}
+.trend-up{background:rgba(34,197,94,.15);color:var(--green)}
+.trend-dn{background:rgba(239,68,68,.15);color:var(--red)}
+.trend-eq{background:rgba(148,163,184,.1);color:var(--gray400)}
+
+/* MARCATORI */
+.scorer-row{display:flex;align-items:center;gap:.75rem;padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+.scorer-row:hover{background:rgba(255,255,255,.04)}
+.scorer-row:last-child{border-bottom:none}
+.scorer-rank{font-size:.85rem;font-weight:700;color:var(--gray400);min-width:24px;text-align:center}
+.scorer-rank.s1{color:var(--gold)}
+.scorer-rank.s2{color:var(--gray200)}
+.scorer-rank.s3{color:#cd7f32}
+.scorer-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.scorer-info{flex:1;min-width:0}
+.scorer-name{font-weight:600;font-size:.88rem;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scorer-team{font-size:.72rem;color:var(--gray400)}
+.scorer-pts{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;color:var(--gold);min-width:48px;text-align:right}
+.scorer-avg{font-size:.7rem;color:var(--gray400);text-align:right}
+
+/* RISULTATI */
+.match-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.9rem 1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:1rem}
+.match-teams{flex:1;display:flex;align-items:center;gap:.5rem;justify-content:space-between}
+.match-team{font-weight:600;font-size:.88rem;text-align:center;flex:1}
+.match-score{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;color:var(--white);padding:0 .5rem;min-width:80px;text-align:center}
+.match-score.live{color:var(--red)}
+.match-meta{font-size:.7rem;color:var(--gray400);white-space:nowrap}
+.badge{font-size:.65rem;font-weight:700;padding:.15rem .5rem;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.badge-live{background:rgba(239,68,68,.2);color:var(--red)}
+.badge-fin{background:rgba(148,163,184,.12);color:var(--gray400)}
+.badge-prog{background:rgba(26,86,219,.2);color:var(--blue-light)}
+
+/* NEWS */
+.news-item{display:flex;gap:1rem;padding:.9rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .15s}
+.news-item:hover{background:rgba(255,255,255,.03)}
+.news-item:last-child{border-bottom:none}
+.news-dot{width:8px;height:8px;border-radius:50%;background:var(--blue-light);flex-shrink:0;margin-top:.35rem}
+.news-date{font-size:.7rem;color:var(--gray400);margin-bottom:.25rem}
+.news-title{font-weight:600;font-size:.88rem;color:var(--white);margin-bottom:.25rem;line-height:1.4}
+.news-preview{font-size:.78rem;color:var(--gray400);line-height:1.5}
+
+/* STATS GIOCATORE */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;padding:1rem}
+.stat-box{background:rgba(255,255,255,.04);border-radius:8px;padding:.8rem;text-align:center}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:700;color:var(--gold)}
+.stat-label{font-size:.7rem;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-top:.2rem}
+
+/* FORM ADMIN */
+.form-section{background:var(--navy2);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+.form-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.form-group{display:flex;flex-direction:column;gap:.35rem}
+.form-group label{font-size:.75rem;color:var(--gray400);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--white);padding:.55rem .75rem;font-size:.88rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--blue-light)}
+.form-group select option{background:var(--navy2);color:var(--white)}
+.btn{background:var(--blue);color:var(--white);border:none;border-radius:6px;padding:.65rem 1.25rem;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;letter-spacing:.3px;width:100%}
+.btn:hover{background:#1e63e8;transform:translateY(-1px)}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-sm{padding:.4rem .8rem;font-size:.78rem;width:auto}
+.notice{background:rgba(26,86,219,.1);border:1px solid rgba(26,86,219,.3);border-radius:6px;padding:.75rem 1rem;font-size:.8rem;color:var(--blue-light);margin-bottom:1rem;line-height:1.5}
+
+/* STANDINGS footer */
+.zone-legend{display:flex;gap:1rem;padding:.6rem 1rem;flex-wrap:wrap}
+.zone-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.zone-label{font-size:.72rem;color:var(--gray400);display:flex;align-items:center;gap:.35rem}
+.zone-pf{background:rgba(34,197,94,.3)}
+.zone-ret{background:rgba(239,68,68,.2)}
+tr.zone-pf-row td:first-child{border-left:3px solid var(--green)}
+tr.zone-ret-row td:first-child{border-left:3px solid var(--red)}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .hero h1{font-size:1.6rem}
+  .form-row{grid-template-columns:1fr}
+  .match-team{font-size:.78rem}
+}
+
+/* PWA install */
+.install-bar{display:none;background:var(--blue);padding:.6rem 1rem;font-size:.82rem;align-items:center;justify-content:space-between;gap:.5rem}
+.install-bar.show{display:flex}
+.install-bar button{background:var(--white);color:var(--blue);border:none;border-radius:4px;padding:.3rem .7rem;font-weight:700;font-size:.78rem;cursor:pointer;white-space:nowrap}
+
+/* GIRONI selector */
+.girone-tabs{display:flex;gap:.4rem;flex-wrap:wrap;padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.girone-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--gray400);font-size:.72rem;font-weight:700;padding:.3rem .7rem;border-radius:4px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+.girone-btn.active{background:var(--blue);border-color:var(--blue);color:var(--white)}
+
+/* LOADER */
+.loader{text-align:center;padding:2rem;color:var(--gray400);font-size:.88rem}
+</style>
+</head>
+<body>
+
+<div class="install-bar" id="installBar">
+  <span>📱 Installa WheelBasket come app</span>
+  <button onclick="installPWA()">Installa</button>
+  <button onclick="document.getElementById('installBar').classList.remove('show')" style="background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.3)">✕</button>
+</div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Wheel<span>Basket</span> 🏀</div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="showSection('home')">Home</button>
+      <button class="tab-btn" onclick="showSection('classifiche')">Classifiche</button>
+      <button class="tab-btn" onclick="showSection('marcatori')">Marcatori</button>
+      <button class="tab-btn" onclick="showSection('risultati')">Risultati</button>
+      <button class="tab-btn" onclick="showSection('notizie')">Notizie</button>
+      <button class="tab-btn" onclick="showSection('admin')">⚙ Admin</button>
+    </div>
+  </div>
+</nav>
+
+<div style="background:rgba(0,0,0,0.3);padding:.3rem 1rem;font-size:.72rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;border-bottom:1px solid rgba(255,255,255,.05)">
+  <span id="sync-status" style="color:var(--gray400)">⏳ Caricamento dati...</span>
+  <button onclick="syncFromSheets()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--gray400);font-size:.7rem;padding:.15rem .5rem;border-radius:4px;cursor:pointer">🔄 Aggiorna</button>
+</div>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="ball-icon">♿🏀</div>
+    <div>
+      <h1><span>Campionati Italiani</span>Basket in Carrozzina</h1>
+    </div>
+    <span class="live-badge">LIVE</span>
+  </div>
+</div>
+
+<!-- HOME -->
+<main>
+<section class="section active" id="section-home">
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1.25rem">
+    <div class="card" style="cursor:pointer" onclick="showSection('classifiche')">
+      <div style="padding:1.1rem;text-align:center">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;color:var(--gold)">5</div>
+        <div style="font-size:.75rem;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem">Gironi attivi</div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="showSection('risultati')">
+      <div style="padding:1.1rem;text-align:center">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;color:var(--blue-light)">37</div>
+        <div style="font-size:.75rem;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem">Squadre iscritte</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">🏆 Top Marcatori</span><span class="card-sub">Aggiornato in tempo reale</span></div>
+    <div id="home-top-scorers"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">📅 Ultimi Risultati</span></div>
+    <div id="home-results"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">📰 Ultime Notizie</span></div>
+    <div id="home-news"></div>
+  </div>
+</section>
+
+<!-- CLASSIFICHE -->
+<section class="section" id="section-classifiche">
+  <div class="camp-tabs">
+    <button class="camp-btn active" onclick="selectCamp('A',this)">Serie A</button>
+    <button class="camp-btn" onclick="selectCamp('B',this)">Serie B</button>
+  </div>
+  <div id="classifiche-content"></div>
+</section>
+
+<!-- MARCATORI -->
+<section class="section" id="section-marcatori">
+  <div class="camp-tabs">
+    <button class="camp-btn active" onclick="selectMarcCamp('all',this)">Tutti</button>
+    <button class="camp-btn" onclick="selectMarcCamp('A',this)">Serie A</button>
+    <button class="camp-btn" onclick="selectMarcCamp('B',this)">Serie B</button>
+  </div>
+  <div class="card"><div id="marcatori-list"></div></div>
+</section>
+
+<!-- RISULTATI -->
+<section class="section" id="section-risultati">
+  <div class="camp-tabs">
+    <button class="camp-btn active" onclick="selectRisCamp('all',this)">Tutti</button>
+    <button class="camp-btn" onclick="selectRisCamp('A',this)">Serie A</button>
+    <button class="camp-btn" onclick="selectRisCamp('B',this)">Serie B</button>
+  </div>
+  <div id="risultati-content" style="padding:.5rem 0"></div>
+</section>
+
+<!-- NOTIZIE -->
+<section class="section" id="section-notizie">
+  <div class="card"><div id="notizie-list"></div></div>
+</section>
+
+<!-- ADMIN -->
+<section class="section" id="section-admin">
+  <div class="notice">🔐 Area riservata agli amministratori. Inserisci i dati del referto: le statistiche verranno aggiornate automaticamente.</div>
+
+  <div class="form-section">
+    <div class="form-title">📋 Inserimento Referto</div>
+    <div class="form-group" style="margin-bottom:.75rem">
+      <label>La tua società / nome</label>
+      <input type="text" id="f-societa" placeholder="Es. Roma Volley – Mario Rossi">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Campionato</label>
+        <select id="f-camp" onchange="updateGironi()">
+          <option value="A">Serie A</option>
+          <option value="B">Serie B</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Girone</label>
+        <select id="f-girone">
+          <option value="A1">Girone Unico (10 sq)</option>
+          <option value="A2">Girone B (6 sq)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Squadra Casa</label>
+        <select id="f-casa"></select>
+      </div>
+      <div class="form-group">
+        <label>Squadra Ospite</label>
+        <select id="f-ospite"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Punti Casa</label>
+        <input type="number" id="f-pcasa" placeholder="es. 72" min="0">
+      </div>
+      <div class="form-group">
+        <label>Punti Ospite</label>
+        <input type="number" id="f-pospite" placeholder="es. 58" min="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data Partita</label>
+        <input type="date" id="f-data">
+      </div>
+      <div class="form-group">
+        <label>Stato</label>
+        <select id="f-stato">
+          <option value="fin">Finale</option>
+          <option value="live">In corso</option>
+          <option value="prog">Programmata</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="salvaRisultato()">💾 Salva Risultato</button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-title">🎯 Aggiungi Statistiche Giocatore</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nome Giocatore</label>
+        <input type="text" id="f-player" placeholder="Nome Cognome">
+      </div>
+      <div class="form-group">
+        <label>Squadra</label>
+        <select id="f-pteam"></select>
+      </div>
+    </div>
+    <div class="form-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="form-group">
+        <label>Punti</label>
+        <input type="number" id="f-ppunti" placeholder="0" min="0">
+      </div>
+      <div class="form-group">
+        <label>Rimbalzi</label>
+        <input type="number" id="f-primb" placeholder="0" min="0">
+      </div>
+      <div class="form-group">
+        <label>Assist</label>
+        <input type="number" id="f-passist" placeholder="0" min="0">
+      </div>
+    </div>
+    <button class="btn" onclick="salvaGiocatore()">➕ Aggiungi / Aggiorna</button>
+  </div>
+
+  <div class="form-section">
+    <div class="form-title">📰 Pubblica Notizia</div>
+    <div class="form-group" style="margin-bottom:.75rem">
+      <label>Titolo</label>
+      <input type="text" id="f-ntitolo" placeholder="Titolo della notizia">
+    </div>
+    <div class="form-group" style="margin-bottom:.75rem">
+      <label>Testo</label>
+      <input type="text" id="f-ntesto" placeholder="Breve descrizione...">
+    </div>
+    <button class="btn btn-gold" onclick="salvaNotizia()">📢 Pubblica</button>
+  </div>
+</section>
+</main>
+
+<script>
+// ── CONFIGURA QUI IL TUO URL GOOGLE APPS SCRIPT ─────────────
+// Dopo aver pubblicato lo script, incolla l'URL qui sotto
+// Es: 'https://script.google.com/macros/s/XXXX/exec'
+const APPS_SCRIPT_URL = '';  // <-- INCOLLA IL TUO URL QUI
+
+// Password admin (deve corrispondere a quella impostata nello script)
+const ADMIN_PASSWORD = 'wheelbasket2025'; // <-- CAMBIA QUESTA!
+
+const DB_KEY = 'wheelbasket_cache';  // cache locale di backup
+
+const SQUADRE = {
+  'A1': ['Roma Volley','Milano Eagles','Torino Thunder','Napoli Basket','Bologna Stars','Firenze Lions','Genova Bulls','Venezia Sharks','Palermo Riders','Bari Warriors'],
+  'A2': ['Cagliari Waves','Verona Knights','Trieste Jets','Udine Bears','Catania Force','Messina United'],
+  'B1': ['Reggio Cal. Phoenix','Cosenza Storm','Lecce Tigers','Brindisi Coast','Taranto Blue','Potenza Red','Matera Gold'],
+  'B2': ['Pescara Falcons','Ancona Blues','Perugia Green','Terni Stars','Viterbo Kings','Latina Sea','Frosinone Rock'],
+  'B3': ['Livorno Port','Pisa Tower','Siena Noble','Arezzo Hills','Grosseto Sun','Lucca Walls','Carrara Stone']
+};
+
+const ALL_SQUADRE = Object.values(SQUADRE).flat();
+
+// ── DATABASE (cache locale + sync Google Sheets) ─────────────
+const EMPTY_DB = {
+  risultati:[], giocatori:[], notizie:[], lastUpdate:null
+};
+
+function loadCache() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY)) || EMPTY_DB; }
+  catch(e) { return EMPTY_DB; }
+}
+function saveCache(data) {
+  localStorage.setItem(DB_KEY, JSON.stringify(data));
+}
+
+let db = loadCache();
+let syncStatus = 'offline'; // 'online' | 'offline' | 'syncing'
+
+// Sincronizza con Google Sheets (lettura)
+async function syncFromSheets() {
+  if (!APPS_SCRIPT_URL) {
+    setSyncStatus('offline', '⚠ URL non configurato — modalità locale');
+    return;
+  }
+  setSyncStatus('syncing', '⏳ Sincronizzazione...');
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + '?action=getData');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    // Normalizza i campi dal formato Google Sheets (underscore) al formato app
+    db.risultati = (data.risultati || []).filter(r => String(r.approvato).toUpperCase() === 'SI').map(r => ({
+      id: r.id, camp: r.campionato, girone: r.girone,
+      casa: r.casa, ospite: r.ospite,
+      pcasa: Number(r.punti_casa), pospite: Number(r.punti_ospite),
+      data: r.data, stato: r.stato
+    }));
+    db.giocatori = (data.giocatori || []).map(g => ({
+      id: g.id, nome: g.nome, squadra: g.squadra,
+      camp: g.campionato, girone: g.girone,
+      punti: Number(g.punti_totali), rimbalzi: Number(g.rimbalzi_totali),
+      assist: Number(g.assist_totali), partite: Number(g.partite)
+    }));
+    db.notizie = (data.notizie || []).filter(n => String(n.pubblicato).toUpperCase() === 'SI').map(n => ({
+      id: n.id, titolo: n.titolo, testo: n.testo, data: n.data
+    }));
+    db.lastUpdate = data.lastUpdate;
+    saveCache(db);
+    setSyncStatus('online', '✅ Dati aggiornati · ' + new Date().toLocaleTimeString('it-IT'));
+    refreshCurrentSection();
+  } catch(err) {
+    setSyncStatus('offline', '⚠ Offline — usando dati in cache');
+    console.warn('Sync error:', err);
+  }
+}
+
+// Invia dati a Google Sheets (scrittura)
+async function postToSheets(action, payload) {
+  if (!APPS_SCRIPT_URL) {
+    setSyncStatus('offline', '⚠ URL non configurato');
+    return { error: 'URL non configurato' };
+  }
+  const body = { action, password: ADMIN_PASSWORD, ...payload };
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+    if (json.ok) await syncFromSheets();
+    return json;
+  } catch(err) {
+    return { error: err.message };
+  }
+}
+
+function setSyncStatus(status, msg) {
+  syncStatus = status;
+  const el = document.getElementById('sync-status');
+  if (el) {
+    el.textContent = msg;
+    el.style.color = status === 'online' ? '#22c55e' : status === 'syncing' ? '#f59e0b' : '#94a3b8';
+  }
+}
+
+let currentSection = 'home';
+let currentCamp = 'A';
+let currentMarcCamp = 'all';
+let currentRisCamp = 'all';
+
+function showSection(id) {
+  currentSection = id;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  const idx = ['home','classifiche','marcatori','risultati','notizie','admin'].indexOf(id);
+  document.querySelectorAll('.tab-btn')[idx]?.classList.add('active');
+  renderSection(id);
+}
+
+function renderSection(id) {
+  if (id === 'home') renderHome();
+  if (id === 'classifiche') renderClassifiche(currentCamp);
+  if (id === 'marcatori') renderMarcatori(currentMarcCamp);
+  if (id === 'risultati') renderRisultati(currentRisCamp);
+  if (id === 'notizie') renderNotizie();
+  if (id === 'admin') initAdmin();
+}
+
+function refreshCurrentSection() {
+  renderSection(currentSection);
+}
+
+function renderHome() {
+  const scorers = [...db.giocatori].sort((a,b) => b.punti - a.punti).slice(0,4);
+  document.getElementById('home-top-scorers').innerHTML = scorers.map((g,i) => scorerRow(g, i+1)).join('');
+  const results = db.risultati.filter(r => r.stato !== 'prog').slice(-3).reverse();
+  document.getElementById('home-results').innerHTML = results.map(r => matchCard(r)).join('') || '<div class="loader">Nessun risultato</div>';
+  const news = db.notizie.slice(-3).reverse();
+  document.getElementById('home-news').innerHTML = news.map(n => newsItem(n)).join('');
+}
+
+function scorerRow(g, rank) {
+  const rankClass = rank <= 3 ? `s${rank}` : '';
+  const initials = g.nome.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+  const avg = (g.punti / (g.partite || 1)).toFixed(1);
+  return `<div class="scorer-row">
+    <span class="scorer-rank ${rankClass}">${rank}</span>
+    <div class="scorer-avatar">${initials}</div>
+    <div class="scorer-info">
+      <div class="scorer-name">${g.nome}</div>
+      <div class="scorer-team">${g.squadra} · ${g.camp === 'A' ? 'Serie A' : 'Serie B'}</div>
+    </div>
+    <div>
+      <div class="scorer-pts">${g.punti}</div>
+      <div class="scorer-avg">${avg} ppg</div>
+    </div>
+  </div>`;
+}
+
+function matchCard(r) {
+  const badgeClass = r.stato === 'live' ? 'badge-live' : r.stato === 'fin' ? 'badge-fin' : 'badge-prog';
+  const badgeLabel = r.stato === 'live' ? '🔴 LIVE' : r.stato === 'fin' ? 'Finale' : 'Programmata';
+  const scoreStr = r.stato === 'prog' ? 'vs' : `${r.pcasa} - ${r.pospite}`;
+  return `<div class="match-card">
+    <div class="match-teams">
+      <div class="match-team">${r.casa}</div>
+      <div class="match-score ${r.stato === 'live' ? 'live' : ''}">${scoreStr}</div>
+      <div class="match-team">${r.ospite}</div>
+    </div>
+    <div>
+      <span class="badge ${badgeClass}">${badgeLabel}</span>
+      <div class="match-meta">${r.girone} · ${formatData(r.data)}</div>
+    </div>
+  </div>`;
+}
+
+function newsItem(n) {
+  return `<div class="news-item">
+    <div class="news-dot"></div>
+    <div>
+      <div class="news-date">${formatData(n.data)}</div>
+      <div class="news-title">${n.titolo}</div>
+      <div class="news-preview">${n.testo}</div>
+    </div>
+  </div>`;
+}
+
+function formatData(d) {
+  if (!d) return '';
+  const [y,m,g] = d.split('-');
+  return `${g}/${m}/${y}`;
+}
+
+function selectCamp(camp, btn) {
+  currentCamp = camp;
+  document.querySelectorAll('#section-classifiche .camp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderClassifiche(camp);
+}
+
+function renderClassifiche(camp) {
+  const gironi = camp === 'A' ? [['A1','Girone Unico – 10 squadre'],['A2','Girone B – 6 squadre']] : [['B1','Girone 1 – 7 squadre'],['B2','Girone 2 – 7 squadre'],['B3','Girone 3 – 7 squadre']];
+  document.getElementById('classifiche-content').innerHTML = gironi.map(([gid, label]) => renderGironeTable(gid, label, camp)).join('');
+}
+
+function renderGironeTable(gid, label, camp) {
+  const squadre = SQUADRE[gid];
+  const standings = calcStandings(gid);
+  const rows = standings.map((s, i) => {
+    const zone = i < 2 ? 'zone-pf-row' : (i >= standings.length - 2 ? 'zone-ret-row' : '');
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    return `<tr class="${zone}">
+      <td><span class="rank ${rankClass}">${i+1}</span> <span class="team-name">${s.nome}</span></td>
+      <td>${s.g}</td><td>${s.v}</td><td>${s.p}</td>
+      <td>${s.pf}</td><td>${s.ps}</td>
+      <td class="pts-cell">${s.pts}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="card" style="margin-bottom:1rem">
+    <div class="card-header"><span class="card-title">${label}</span><span class="card-sub">${camp === 'A' ? 'Serie A' : 'Serie B'}</span></div>
+    <table>
+      <thead><tr><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>PF</th><th>PS</th><th>Pts</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="zone-legend">
+      <span class="zone-label"><span class="zone-dot zone-pf"></span>Playoff</span>
+      <span class="zone-label"><span class="zone-dot zone-ret"></span>Retrocessione</span>
+    </div>
+  </div>`;
+}
+
+function calcStandings(gid) {
+  const squadre = SQUADRE[gid];
+  const map = {};
+  squadre.forEach(s => {map[s] = {nome:s,g:0,v:0,p:0,pf:0,ps:0,pts:0}});
+  db.risultati.filter(r => r.girone === gid && r.stato === 'fin').forEach(r => {
+    if (map[r.casa]) {
+      map[r.casa].g++; map[r.casa].pf += r.pcasa; map[r.casa].ps += r.pospite;
+      if (r.pcasa > r.pospite) {map[r.casa].v++; map[r.casa].pts += 2} else {map[r.casa].p++; map[r.casa].pts += 1}
+    }
+    if (map[r.ospite]) {
+      map[r.ospite].g++; map[r.ospite].pf += r.pospite; map[r.ospite].ps += r.pcasa;
+      if (r.pospite > r.pcasa) {map[r.ospite].v++; map[r.ospite].pts += 2} else {map[r.ospite].p++; map[r.ospite].pts += 1}
+    }
+  });
+  return Object.values(map).sort((a,b) => b.pts - a.pts || (b.pf-b.ps) - (a.pf-a.ps));
+}
+
+function selectMarcCamp(camp, btn) {
+  currentMarcCamp = camp;
+  document.querySelectorAll('#section-marcatori .camp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMarcatori(camp);
+}
+
+function renderMarcatori(camp) {
+  let list = [...db.giocatori];
+  if (camp !== 'all') list = list.filter(g => g.camp === camp);
+  list.sort((a,b) => b.punti - a.punti);
+  document.getElementById('marcatori-list').innerHTML = list.map((g,i) => scorerRow(g, i+1)).join('') || '<div class="loader">Nessun dato</div>';
+}
+
+function selectRisCamp(camp, btn) {
+  currentRisCamp = camp;
+  document.querySelectorAll('#section-risultati .camp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRisultati(camp);
+}
+
+function renderRisultati(camp) {
+  let list = [...db.risultati];
+  if (camp !== 'all') list = list.filter(r => r.camp === camp);
+  list.sort((a,b) => new Date(b.data) - new Date(a.data));
+  document.getElementById('risultati-content').innerHTML = list.map(r => matchCard(r)).join('') || '<div class="loader">Nessun risultato</div>';
+}
+
+function renderNotizie() {
+  const list = [...db.notizie].reverse();
+  document.getElementById('notizie-list').innerHTML = list.map(n => newsItem(n)).join('') || '<div class="loader">Nessuna notizia</div>';
+}
+
+function populateSelect(id, options) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('');
+}
+
+function updateGironi() {
+  const camp = document.getElementById('f-camp').value;
+  const gironi = camp === 'A' ? ['A1 - Girone Unico (10 sq)','A2 - Girone B (6 sq)'] : ['B1 - Girone 1','B2 - Girone 2','B3 - Girone 3'];
+  const gids = camp === 'A' ? ['A1','A2'] : ['B1','B2','B3'];
+  const el = document.getElementById('f-girone');
+  el.innerHTML = gids.map((g,i) => `<option value="${g}">${gironi[i]}</option>`).join('');
+  updateSquadreSelect();
+}
+
+function updateSquadreSelect() {
+  const gid = document.getElementById('f-girone').value;
+  const sq = SQUADRE[gid] || [];
+  populateSelect('f-casa', sq);
+  populateSelect('f-ospite', sq);
+}
+
+function initAdmin() {
+  updateGironi();
+  populateSelect('f-pteam', ALL_SQUADRE);
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f-data').value = today;
+  document.getElementById('f-girone').addEventListener('change', updateSquadreSelect);
+}
+
+async function salvaRisultato() {
+  const camp = document.getElementById('f-camp').value;
+  const girone = document.getElementById('f-girone').value;
+  const casa = document.getElementById('f-casa').value;
+  const ospite = document.getElementById('f-ospite').value;
+  const pcasa = parseInt(document.getElementById('f-pcasa').value) || 0;
+  const pospite = parseInt(document.getElementById('f-pospite').value) || 0;
+  const data = document.getElementById('f-data').value;
+  const stato = document.getElementById('f-stato').value;
+  const inseritoDa = document.getElementById('f-societa').value || 'Admin';
+  if (!casa || !ospite || casa === ospite) {alert('Seleziona due squadre diverse'); return}
+  if (!APPS_SCRIPT_URL) {
+    // modalità locale (fallback senza Google Sheets)
+    db.risultati.push({id: Date.now(), camp, girone, casa, ospite, pcasa, pospite, data, stato});
+    saveCache(db); refreshCurrentSection();
+    alert('✅ Salvato in locale (Google Sheets non configurato)');
+  } else {
+    const btn = document.querySelector('#section-admin .btn-gold');
+    if(btn){btn.disabled=true;btn.textContent='⏳ Invio...';}
+    const res = await postToSheets('addRisultato', {data:{camp,girone,casa,ospite,pcasa,pospite,data,stato,inseritoDa}});
+    if(btn){btn.disabled=false;btn.textContent='💾 Salva Risultato';}
+    if (res.ok) {
+      alert('✅ Risultato inviato! L\'admin deve approvarlo perché sia visibile nella classifica.');
+      document.getElementById('f-pcasa').value = '';
+      document.getElementById('f-pospite').value = '';
+    } else alert('❌ Errore: ' + (res.error || 'sconosciuto'));
+  }
+}
+
+async function salvaGiocatore() {
+  const nome = document.getElementById('f-player').value.trim();
+  const squadra = document.getElementById('f-pteam').value;
+  const punti = parseInt(document.getElementById('f-ppunti').value) || 0;
+  const rimbalzi = parseInt(document.getElementById('f-primb').value) || 0;
+  const assist = parseInt(document.getElementById('f-passist').value) || 0;
+  const inseritoDa = document.getElementById('f-societa').value || 'Admin';
+  if (!nome) {alert('Inserisci il nome del giocatore'); return}
+  let camp = 'B', girone = 'B1';
+  for (const [gid, sq] of Object.entries(SQUADRE)) {
+    if (sq.includes(squadra)) {girone = gid; camp = gid.startsWith('A') ? 'A' : 'B'; break}
+  }
+  if (!APPS_SCRIPT_URL) {
+    const existing = db.giocatori.find(g => g.nome.toLowerCase() === nome.toLowerCase());
+    if (existing) { existing.punti+=punti; existing.rimbalzi+=rimbalzi; existing.assist+=assist; existing.partite++; }
+    else db.giocatori.push({id:Date.now(),nome,squadra,camp,girone,punti,rimbalzi,assist,partite:1});
+    saveCache(db); refreshCurrentSection();
+    alert('✅ Salvato in locale');
+  } else {
+    const res = await postToSheets('addGiocatore', {data:{nome,squadra,camp,girone,punti,rimbalzi,assist,inseritoDa}});
+    if (res.ok) {
+      alert(`✅ Statistiche di ${nome} aggiornate sul server!`);
+      document.getElementById('f-player').value='';
+      document.getElementById('f-ppunti').value='';
+      document.getElementById('f-primb').value='';
+      document.getElementById('f-passist').value='';
+    } else alert('❌ Errore: ' + (res.error||'sconosciuto'));
+  }
+}
+
+async function salvaNotizia() {
+  const titolo = document.getElementById('f-ntitolo').value.trim();
+  const testo = document.getElementById('f-ntesto').value.trim();
+  const inseritoDa = document.getElementById('f-societa').value || 'Admin';
+  if (!titolo) {alert('Inserisci il titolo'); return}
+  const data = new Date().toISOString().split('T')[0];
+  if (!APPS_SCRIPT_URL) {
+    db.notizie.push({id:Date.now(),titolo,testo,data});
+    saveCache(db); refreshCurrentSection();
+    alert('✅ Notizia salvata in locale');
+  } else {
+    const res = await postToSheets('addNotizia', {data:{titolo,testo,data,inseritoDa}});
+    if (res.ok) {
+      alert('✅ Notizia pubblicata!');
+      document.getElementById('f-ntitolo').value='';
+      document.getElementById('f-ntesto').value='';
+    } else alert('❌ Errore: ' + (res.error||'sconosciuto'));
+  }
+}
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('installBar').classList.add('show');
+});
+function installPWA() {
+  if (deferredPrompt) {deferredPrompt.prompt(); deferredPrompt = null; document.getElementById('installBar').classList.remove('show')}
+}
+
+// ── Avvio ─────────────────────────────────────────────────────
+renderHome();
+// Sincronizza subito all'apertura
+syncFromSheets();
+// Auto-refresh ogni 2 minuti
+setInterval(syncFromSheets, 2 * 60 * 1000);
+</script>
+</body>
+</html>
